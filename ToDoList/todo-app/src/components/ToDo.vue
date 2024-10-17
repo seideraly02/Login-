@@ -2,24 +2,16 @@
   <div class="todo-app">
     <h1>ToDo Application</h1>
 
-    <!-- Форма для добавления новой задачи -->
     <div class="todo-add">
       <input v-model="newTask" placeholder="Add a new task" @keyup.enter="addTask" />
       <button @click="addTask">+</button>
-    </div>
-
-    <!-- Фильтры для задач -->
-    <div class="filters">
-      <button @click="filterTasks('all')" :class="{ active: filter === 'all' }">All</button>
-      <button @click="filterTasks('active')" :class="{ active: filter === 'active' }">Active</button>
-      <button @click="filterTasks('completed')" :class="{ active: filter === 'completed' }">Completed</button>
     </div>
 
     <!-- Список задач -->
     <ul class="task-list">
       <li v-for="(task, index) in sortedTasks" :key="task.id" :class="{ completed: task.completed }" class="task-item">
         <div class="task-text">
-          <input type="checkbox" v-model="task.completed" @change="saveTasks" />
+          <input className="checkbox" type="checkbox" v-model="task.completed" @change="saveTasks" />
           <span v-if="!task.isEditing">{{ task.text }}</span>
           <input v-if="task.isEditing" v-model="task.text" @keyup.enter="stopEditing(task)" class="task-edit-input" />
         </div>
@@ -37,7 +29,6 @@ import { ref, computed, onMounted } from 'vue';
 
 const newTask = ref('');
 const tasks = ref([]);
-const filter = ref('all');
 
 // Загрузка данных из localStorage
 onMounted(() => {
@@ -45,19 +36,9 @@ onMounted(() => {
   tasks.value = savedTasks;
 });
 
-// Фильтрация задач
-const filteredTasks = computed(() => {
-  if (filter.value === 'completed') {
-    return tasks.value.filter(task => task.completed);
-  } else if (filter.value === 'active') {
-    return tasks.value.filter(task => !task.completed);
-  }
-  return tasks.value;
-});
-
 // Сортировка задач: сначала невыполненные, потом выполненные
 const sortedTasks = computed(() => {
-  return filteredTasks.value.slice().sort((a, b) => a.completed - b.completed);
+  return tasks.value.slice().sort((a, b) => a.completed - b.completed);
 });
 
 // Добавление новой задачи
@@ -97,88 +78,82 @@ const stopEditing = (task) => {
 const saveTasks = () => {
   localStorage.setItem('tasks', JSON.stringify(tasks.value));
 };
-
-// Фильтрация задач по статусу
-const filterTasks = (status) => {
-  filter.value = status;
-};
 </script>
 
 <style scoped>
-/* Общий стиль для приложения */
 .todo-app {
-  max-width: 500px;
-  margin: 0 auto;
-  font-family: 'Arial', sans-serif;
+  max-width: 600px;
+  margin: 30px auto;
+  font-family: 'Roboto', sans-serif;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background-color: #ffffff;
 }
 
 h1 {
   text-align: center;
-  color: #333;
+  color: #4a4e69;
   margin-bottom: 20px;
+  font-size: 24px;
 }
 
-/* Стиль формы для добавления задач */
 .todo-add {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
 
 .todo-add input {
-  width: 70%;
+  flex-grow: 1;
   padding: 10px;
-  border: 2px solid #ccc;
-  border-radius: 5px;
+  border: 2px solid #9a8c98;
+  border-radius: 4px;
   font-size: 16px;
-  margin-right: 10px;
+  color: #222;
 }
-
+.checkbox{
+  cursor: pointer;
+}
 .todo-add button {
-  background-color: #28a745;
+  padding: 10px 20px;
+  background-color: #c9ada7;
   color: white;
   border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 20px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s;
 }
 
 .todo-add button:hover {
-  background-color: #218838;
+  background-color: #9a8c98;
 }
 
-/* Стиль фильтров задач */
 .filters {
-  display: flex;
-  justify-content: space-around;
+  text-align: center;
   margin-bottom: 20px;
 }
 
 .filters button {
-  padding: 10px;
-  background-color: #f1f1f1;
+  padding: 8px 16px;
+  background-color: #f2e9e4;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 20px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  margin: 0 5px;
+  transition: background-color 0.3s;
 }
 
 .filters button.active,
 .filters button:hover {
-  background-color: #007bff;
+  background-color: #c9ada7;
   color: white;
 }
 
-/* Стиль списка задач */
+/* Стили для списка задач */
 .task-list {
   list-style-type: none;
+  margin: 0;
   padding: 0;
 }
 
@@ -187,34 +162,41 @@ h1 {
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  border-bottom: 1px solid #ccc;
-  transition: background-color 0.3s ease;
+  border-bottom: 1px solid #eae2b7;
+  transition: background-color 0.3s;
+}
+
+.task-item:last-child {
+  border-bottom: none;
 }
 
 .task-item.completed .task-text span {
   text-decoration: line-through;
-  color: #888;
+  color: #6b705c;
+  cursor: pointer;
 }
 
 .task-item:hover {
-  background-color: #e9e9e9;
+  background-color: #f2e9e4;
 }
 
-/* Стиль кнопок задач */
+/* Стили для кнопок управления задачей */
 .task-buttons button {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
-  margin-left: 5px;
+  font-size: 18px;
+  color: #9a8c98;
 }
 
-/* Стили для редактируемой задачи */
+/* Стили для поля редактирования задачи */
 .task-edit-input {
-  width: 80%;
-  padding: 5px;
+  width: 100%;
+  padding: 8px;
   font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  border: 1px solid #9a8c98;
+  border-radius: 4px;
+  color: #222;
 }
+
 </style>
